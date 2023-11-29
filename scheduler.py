@@ -18,6 +18,7 @@ def create_scheduler(seed, n_emitters, sigma0, batch_size):
     action_dim = env.action_space.n
     obs_dim = env.observation_space.shape[0]
     initial_model = np.zeros((action_dim, obs_dim))
+    
     archive = GridArchive(
         solution_dim=initial_model.size,
         dims=[50, 50],  # 50 cells in each dimension.
