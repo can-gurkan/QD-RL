@@ -1,6 +1,8 @@
 import json
 import matplotlib.pyplot as plt
 from ribs.visualize import grid_archive_heatmap
+from ribs.visualize import cvt_archive_heatmap
+
 
 def save_heatmap(archive, filename):
     """Saves a heatmap of the scheduler's archive to the filename.
@@ -15,6 +17,15 @@ def save_heatmap(archive, filename):
     ax.set_ylabel("Impact y-velocity")
     ax.set_xlabel("Impact x-position")
     fig.savefig(filename)
+
+def save_cvt_heatmap(archive, filename):
+    fig, ax = plt.subplots(figsize=(8, 6))
+    cvt_archive_heatmap(archive, lw=0.1, ax=ax)
+    ax.invert_yaxis()  # Makes more sense if larger velocities are on top.
+    ax.set_ylabel("Impact y-velocity")
+    ax.set_xlabel("Impact x-position")
+    fig.savefig(filename)
+    plt.figure(figsize=(12, 9))
 
 
 def save_metrics(outdir, metrics):

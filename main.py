@@ -57,7 +57,7 @@ def main(workers=4,
     # Outputs.
     scheduler.archive.as_pandas().to_csv(outdir / "archive.csv")
     save_ccdf(scheduler.archive, str(outdir / "archive_ccdf.png"))
-    save_heatmap(scheduler.archive, str(outdir / "heatmap.png"))
+    save_cvt_heatmap(scheduler.archive, str(outdir / "heatmap.png"))
     save_metrics(outdir, metrics)
 
 

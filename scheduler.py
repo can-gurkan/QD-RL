@@ -1,7 +1,7 @@
 import numpy as np
 import gymnasium as gym
 
-from ribs.archives import GridArchive
+from ribs.archives import CVTArchive
 from ribs.emitters import EvolutionStrategyEmitter
 from ribs.schedulers import Scheduler
 
@@ -18,14 +18,27 @@ def create_scheduler(seed, n_emitters, sigma0, batch_size):
     action_dim = env.action_space.n
     obs_dim = env.observation_space.shape[0]
     initial_model = np.zeros((action_dim, obs_dim))
+
+    # archive = GridArchive(
+    #     solution_dim=initial_model.size,
+    #     dims=[50, 50],  # 50 cells in each dimension.
+    #     # (-1, 1) for x-pos and (-3, 0) for y-vel.
+    #     ranges=[(-1.0, 1.0), (-3.0, 0.0)],
+    #     qd_score_offset=-600,
+    #     seed=seed)
     
-    archive = GridArchive(
-        solution_dim=initial_model.size,
-        dims=[50, 50],  # 50 cells in each dimension.
-        # (-1, 1) for x-pos and (-3, 0) for y-vel.
-        ranges=[(-1.0, 1.0), (-3.0, 0.0)],
-        qd_score_offset=-600,
-        seed=seed)
+    archive = CVTArchive(
+        solution_dim=initial_model.size, 
+        cells=1000, 
+        ranges=[(-1.0, 1.0), (-3.0, 0.0)], 
+        learning_rate=1.0,
+        qd_score_offset=-600, 
+        seed=seed,  
+        #samples=100000, 
+        custom_centroids=None, 
+        k_means_kwargs=None, 
+        use_kd_tree=True, 
+        ckdtree_kwargs=None)
 
     
     # If we create the emitters with identical seeds, they will all output the
