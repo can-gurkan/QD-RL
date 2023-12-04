@@ -5,6 +5,8 @@ from ribs.archives import CVTArchive
 from ribs.emitters import EvolutionStrategyEmitter
 from ribs.schedulers import Scheduler
 
+from models import MLP
+
 def create_scheduler(seed, n_emitters, sigma0, batch_size):
     """Creates the Scheduler based on given configurations.
 
@@ -17,7 +19,7 @@ def create_scheduler(seed, n_emitters, sigma0, batch_size):
     env = gym.make("LunarLander-v2")
     action_dim = env.action_space.n
     obs_dim = env.observation_space.shape[0]
-    initial_model = np.zeros((action_dim, obs_dim))
+    initial_model = MLP(obs_dim, action_dim, 64, 64)
 
     # archive = GridArchive(
     #     solution_dim=initial_model.size,
@@ -28,7 +30,7 @@ def create_scheduler(seed, n_emitters, sigma0, batch_size):
     #     seed=seed)
     
     archive = CVTArchive(
-        solution_dim=initial_model.size, 
+        solution_dim=sum(p.numel() for p in initial_model.parameters() if p.requires_grad), 
         cells=1000, 
         ranges=[(-1.0, 1.0), (-3.0, 0.0)], 
         learning_rate=1.0,
@@ -53,7 +55,8 @@ def create_scheduler(seed, n_emitters, sigma0, batch_size):
     emitters = [
         EvolutionStrategyEmitter(
             archive,
-            x0=initial_model.flatten(),
+            #x0=initial_model.flatten(),
+            x0=np.concatenate([p.data.cpu().detach().numpy().ravel() for p in initial_model.parameters()]),
             sigma0=sigma0,
             ranker="2imp",
             batch_size=batch_size,

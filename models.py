@@ -2,6 +2,7 @@ import torch as T
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
+import numpy as np
 
 class MLP(nn.Module):
 
@@ -25,3 +26,9 @@ class MLP(nn.Module):
         actions = self.fc3(x)
         return actions
     
+    def choose_action(self, observation):
+        state = T.tensor([np.array(observation, dtype=np.float32)]).to(self.device)
+        with T.no_grad():
+            actions = self.forward(state)
+        action = T.argmax(actions).item()
+        return action

@@ -1,5 +1,6 @@
 import gymnasium as gym
 import numpy as np
+from models import MLP
 
 def simulate(model, seed=None):
     """Simulates the lunar lander model.
@@ -23,7 +24,8 @@ def simulate(model, seed=None):
 
     action_dim = env.action_space.n
     obs_dim = env.observation_space.shape[0]
-    model = model.reshape((action_dim, obs_dim))
+    #model = model.reshape((action_dim, obs_dim))
+    model = MLP(obs_dim, action_dim, 12, 12)
 
     total_reward = 0.0
     impact_x_pos = None
@@ -33,7 +35,8 @@ def simulate(model, seed=None):
     done = False
 
     while not done:
-        action = np.argmax(model @ obs)  # Linear policy.
+        #action = np.argmax(model @ obs)  # Linear policy.
+        action = model.choose_action(obs)
         obs, reward, terminated, truncated, _ = env.step(action)
         done = terminated or truncated
         total_reward += reward
