@@ -56,7 +56,8 @@ def create_scheduler(seed, n_emitters, sigma0, batch_size):
         EvolutionStrategyEmitter(
             archive,
             #x0=initial_model.flatten(),
-            x0=np.concatenate([p.data.cpu().detach().numpy().ravel() for p in initial_model.parameters()]),
+            #x0=np.concatenate([p.data.cpu().detach().numpy().ravel() for p in initial_model.parameters()]),
+            x0=initial_model.serialize(),
             sigma0=sigma0,
             ranker="2imp",
             batch_size=batch_size,

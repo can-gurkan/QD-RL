@@ -26,6 +26,29 @@ class MLP(nn.Module):
         actions = self.fc3(x)
         return actions
     
+    def serialize(self):
+        """Returns 1D array with all parameters in the nn."""
+        return np.concatenate([p.data.cpu().detach().numpy().ravel() for p in self.parameters()])
+
+    def deserialize(self, array):
+        """Loads parameters from 1D array."""
+        array = np.copy(array)
+        arr_idx = 0
+        for param in self.parameters():
+            shape = tuple(param.data.shape)
+            length = np.product(shape)
+            block = array[arr_idx:arr_idx + length]
+            if len(block) != length:
+                raise ValueError("Array not long enough!")
+            block = np.reshape(block, shape)
+            arr_idx += length
+            param.data = T.from_numpy(block).float()
+        return self
+
+    def gradient(self):
+        """Returns 1D array with gradient of all parameters in the actor."""
+        return np.concatenate([p.grad.cpu().detach().numpy().ravel() for p in self.parameters()])
+
     def choose_action(self, observation):
         state = T.tensor([np.array(observation, dtype=np.float32)]).to(self.device)
         with T.no_grad():
