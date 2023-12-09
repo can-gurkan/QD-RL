@@ -27,7 +27,7 @@ def simulate(sol, seed=None):
     #model = model.reshape((action_dim, obs_dim))
     # Fix the deserialization process here.
     #model = MLP(obs_dim, action_dim, 12, 12)
-    model =  MLP(obs_dim, action_dim, 12, 12).deserialize(sol)
+    model =  MLP(obs_dim, action_dim, 64, 64).deserialize(sol)
 
     total_reward = 0.0
     impact_x_pos = None

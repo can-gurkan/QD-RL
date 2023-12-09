@@ -50,8 +50,10 @@ class MLP(nn.Module):
         return np.concatenate([p.grad.cpu().detach().numpy().ravel() for p in self.parameters()])
 
     def choose_action(self, observation):
-        state = T.tensor([np.array(observation, dtype=np.float32)]).to(self.device)
+        #state = T.tensor([np.array(observation, dtype=np.float32)]).to(self.device)
+        state = T.from_numpy(observation.astype(np.float32)).to(self.device)
         with T.no_grad():
             actions = self.forward(state)
+        #print(actions)
         action = T.argmax(actions).item()
         return action

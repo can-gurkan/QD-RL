@@ -3,16 +3,19 @@ from pathlib import Path
 import fire
 from dask.distributed import Client, LocalCluster
 
+import warnings
+warnings.filterwarnings('ignore')
+
 from scheduler import create_scheduler
 from search import run_search
 from visualize import *
 
-def main(workers=4,
+def main(workers=8,
         env_seed=52,
-        iterations=300,
+        iterations=500,
         log_freq=25,
         n_emitters=5,
-        batch_size=30,
+        batch_size=50,
         sigma0=1.0,
         seed=None,
         outdir="output_files"):
