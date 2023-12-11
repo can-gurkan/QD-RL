@@ -1,5 +1,6 @@
 import numpy as np
 import gymnasium as gym
+import gin
 
 from ribs.archives import CVTArchive
 from ribs.emitters import EvolutionStrategyEmitter
@@ -7,7 +8,9 @@ from ribs.schedulers import Scheduler
 
 from models import MLP
 
-def create_scheduler(seed, n_emitters, sigma0, batch_size):
+
+@gin.configurable
+def create_scheduler(seed, n_emitters, sigma0, batch_size, archive_type=gin.REQUIRED, emitter_type=gin.REQUIRED):
     """Creates the Scheduler based on given configurations.
 
     See lunar_lander_main() for description of args.
@@ -29,18 +32,23 @@ def create_scheduler(seed, n_emitters, sigma0, batch_size):
     #     qd_score_offset=-600,
     #     seed=seed)
     
-    archive = CVTArchive(
-        solution_dim=sum(p.numel() for p in initial_model.parameters() if p.requires_grad), 
-        cells=1000, 
-        ranges=[(-1.0, 1.0), (-3.0, 0.0)], 
-        learning_rate=1.0,
-        qd_score_offset=-600, 
-        seed=seed,  
-        #samples=100000, 
-        custom_centroids=None, 
-        k_means_kwargs=None, 
-        use_kd_tree=True, 
-        ckdtree_kwargs=None)
+    #gin.external_configurable(ribs.archives.CVTArchive)
+    # archive = CVTArchive(
+    #     solution_dim=sum(p.numel() for p in initial_model.parameters() if p.requires_grad), 
+    #     cells=1000, 
+    #     ranges=[(-1.0, 1.0), (-3.0, 0.0)], 
+    #     learning_rate=1.0,
+    #     qd_score_offset=-600, 
+    #     seed=seed,  
+    #     #samples=100000, 
+    #     custom_centroids=None, 
+    #     k_means_kwargs=None, 
+    #     use_kd_tree=True, 
+    #     ckdtree_kwargs=None)
+
+    archive = archive_type(
+        solution_dim=sum(p.numel() for p in initial_model.parameters() if p.requires_grad)
+    )
 
     
     # If we create the emitters with identical seeds, they will all output the
@@ -52,14 +60,26 @@ def create_scheduler(seed, n_emitters, sigma0, batch_size):
              if seed is None else [seed + i for i in range(n_emitters)])
 
     # We use the EvolutionStrategyEmitter to create an ImprovementEmitter.
+    # emitters = [
+    #     EvolutionStrategyEmitter(
+    #         archive,
+    #         #x0=initial_model.flatten(),
+    #         #x0=np.concatenate([p.data.cpu().detach().numpy().ravel() for p in initial_model.parameters()]),
+    #         x0=initial_model.serialize(),
+    #         sigma0=sigma0,
+    #         ranker="2imp",
+    #         batch_size=batch_size,
+    #         seed=s,
+    #     ) for s in seeds
+    # ]
+
     emitters = [
-        EvolutionStrategyEmitter(
+        emitter_type(
             archive,
             #x0=initial_model.flatten(),
             #x0=np.concatenate([p.data.cpu().detach().numpy().ravel() for p in initial_model.parameters()]),
             x0=initial_model.serialize(),
             sigma0=sigma0,
-            ranker="2imp",
             batch_size=batch_size,
             seed=s,
         ) for s in seeds

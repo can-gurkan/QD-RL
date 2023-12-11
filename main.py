@@ -1,18 +1,20 @@
-import os
 from pathlib import Path
-import fire
 from dask.distributed import Client, LocalCluster
+import fire
+import gin
 
 import warnings
 warnings.filterwarnings('ignore')
+warnings.simplefilter('ignore')
 
 from scheduler import create_scheduler
 from search import run_search
 from visualize import *
 
-def main(workers=8,
+@gin.configurable
+def experiment(workers=8,
         env_seed=52,
-        iterations=500,
+        iterations=300,
         log_freq=25,
         n_emitters=5,
         batch_size=50,
@@ -20,23 +22,19 @@ def main(workers=8,
         seed=None,
         outdir="output_files"):
     
-    """Uses CMA-ME to train linear agents in Lunar Lander.
-
+    """
     Args:
         workers (int): Number of workers to use for simulations.
-        env_seed (int): Environment seed. The default gives the flat terrain
-            from the tutorial.
+        env_seed (int): Environment seed.
         iterations (int): Number of iterations to run the algorithm.
-        log_freq (int): Number of iterations to wait before recording metrics
-            and saving heatmap.
+        log_freq (int): Number of iterations to wait before recording metrics and saving heatmap.
         n_emitters (int): Number of emitters.
         batch_size (int): Batch size of each emitter.
         sigma0 (float): Initial step size of each emitter.
         seed (seed): Random seed for the pyribs components.
-        outdir (str): Directory for Lunar Lander output.
-        run_eval (bool): Pass this flag to run an evaluation of 10 random
-            solutions selected from the archive in the `outdir`.
+        outdir (str): Directory for the output files.
     """
+
     outdir = Path(outdir)
 
     # Make the directory here so that it is not made when running eval.
@@ -53,7 +51,7 @@ def main(workers=8,
     )
     client = Client(cluster)
 
-    # CMA-ME.
+    # Specify QD algorithm and run search.
     scheduler = create_scheduler(seed, n_emitters, sigma0, batch_size)
     metrics = run_search(client, scheduler, env_seed, iterations, log_freq)
 
@@ -63,6 +61,15 @@ def main(workers=8,
     save_cvt_heatmap(scheduler.archive, str(outdir / "heatmap.png"))
     save_metrics(outdir, metrics)
 
+def main(config_file='hyperparams_test.gin'):
+    from ribs.archives import CVTArchive, GridArchive
+    from ribs.emitters import EvolutionStrategyEmitter
+
+    gin.external_configurable(CVTArchive)
+    gin.external_configurable(EvolutionStrategyEmitter)
+    gin.parse_config_file(config_file)
+
+    experiment()
 
 if __name__ == "__main__":
     fire.Fire(main)
