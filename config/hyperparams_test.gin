@@ -1,15 +1,20 @@
+include 'config/nnparams.gin'
+
+#experiment.iterations = 300
 experiment.iterations = 10
-experiment.workers = 4
+#experiment.workers = 4
+experiment.workers = 1
 experiment.env_seed = 52
 experiment.log_freq = 25
 experiment.n_emitters = 5
-experiment.batch_size = 30
+experiment.batch_size = 3
 experiment.sigma0 = 1.0
 experiment.seed = None
 experiment.outdir = "output_files"
 
 create_scheduler.archive_type = @CVTArchive
-CVTArchive.cells = 50
+#CVTArchive.cells = 50
+CVTArchive.cells = 1000
 CVTArchive.ranges=[(-1.0, 1.0), (-3.0, 0.0)]
 CVTArchive.learning_rate=1.0
 CVTArchive.qd_score_offset=-600

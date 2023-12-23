@@ -1,6 +1,8 @@
 import gymnasium as gym
 import numpy as np
+import gin
 from models import MLP
+
 
 def simulate(sol, seed=None):
     """Simulates the lunar lander model.
@@ -24,10 +26,10 @@ def simulate(sol, seed=None):
 
     action_dim = env.action_space.n
     obs_dim = env.observation_space.shape[0]
-    #model = model.reshape((action_dim, obs_dim))
-    # Fix the deserialization process here.
-    #model = MLP(obs_dim, action_dim, 12, 12)
-    model =  MLP(obs_dim, action_dim, 64, 64).deserialize(sol)
+    
+    gin.parse_config_file('config/nnparams.gin')
+
+    model =  MLP(obs_dim, action_dim).deserialize(sol)
 
     total_reward = 0.0
     impact_x_pos = None

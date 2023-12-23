@@ -2,6 +2,7 @@ import time
 from tqdm import tqdm, trange
 from simulate import simulate
 
+
 def run_search(client, scheduler, env_seed, iterations, log_freq):
     """Runs the QD algorithm for the given number of iterations.
 

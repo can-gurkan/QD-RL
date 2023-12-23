@@ -61,9 +61,11 @@ def experiment(workers=8,
     save_cvt_heatmap(scheduler.archive, str(outdir / "heatmap.png"))
     save_metrics(outdir, metrics)
 
-def main(config_file='hyperparams_test.gin'):
+
+def main(config_file='config/hyperparams_test.gin'):
     from ribs.archives import CVTArchive, GridArchive
     from ribs.emitters import EvolutionStrategyEmitter
+    from models import MLP
 
     gin.external_configurable(CVTArchive)
     gin.external_configurable(EvolutionStrategyEmitter)
