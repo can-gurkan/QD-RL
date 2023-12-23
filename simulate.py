@@ -4,7 +4,7 @@ import gin
 from models import MLP
 
 
-def simulate(sol, seed=None):
+def simulate(sol, seed=None, video_env=None):
     """Simulates the lunar lander model.
 
     Args:
@@ -22,7 +22,10 @@ def simulate(sol, seed=None):
             ground for the first time.
     """
     
-    env = gym.make("LunarLander-v2")
+    if video_env is None:
+        env = gym.make("LunarLander-v2")
+    else:
+        env = video_env
 
     action_dim = env.action_space.n
     obs_dim = env.observation_space.shape[0]
@@ -65,6 +68,7 @@ def simulate(sol, seed=None):
         impact_x_pos = x_pos
         impact_y_vel = min(all_y_vels)
 
-    env.close()
+    if video_env is None:
+        env.close()
 
     return total_reward, impact_x_pos, impact_y_vel

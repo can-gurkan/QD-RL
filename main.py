@@ -60,6 +60,7 @@ def experiment(workers=8,
     save_ccdf(scheduler.archive, str(outdir / "archive_ccdf.png"))
     save_cvt_heatmap(scheduler.archive, str(outdir / "heatmap.png"))
     save_metrics(outdir, metrics)
+    make_video(outdir,env_seed)
 
 
 def main(config_file='config/hyperparams_test.gin'):
