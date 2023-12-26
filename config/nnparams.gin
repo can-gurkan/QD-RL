@@ -1,1 +1,1 @@
-MLP.layer_shapes = (64,64)
+MLP.layer_shapes = (16,16)

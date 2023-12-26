@@ -2,6 +2,7 @@ from pathlib import Path
 from dask.distributed import Client, LocalCluster
 import fire
 import gin
+import time
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -63,6 +64,17 @@ def experiment(workers=8,
     make_video(outdir,env_seed)
 
 
+def manager(exp_name='exp_test'):
+    archive_sizes = [1,10,100,1000]
+    for i in archive_sizes:
+        fname = 'output_files/'+exp_name+'_as_'+str(i)
+        print(fname)
+        gin.bind_parameter('CVTArchive.cells', i)
+        print(gin.query_parameter('CVTArchive.cells'))
+        experiment(outdir=fname)
+        time.sleep(300)
+    
+
 def main(config_file='config/hyperparams_test.gin'):
     from ribs.archives import CVTArchive, GridArchive
     from ribs.emitters import EvolutionStrategyEmitter
@@ -72,7 +84,9 @@ def main(config_file='config/hyperparams_test.gin'):
     gin.external_configurable(EvolutionStrategyEmitter)
     gin.parse_config_file(config_file)
 
-    experiment()
+    #experiment()
+    #experiment(workers=4,iterations=1000)
+    manager(exp_name='exp_test2')
 
 if __name__ == "__main__":
     fire.Fire(main)

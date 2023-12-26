@@ -1,5 +1,6 @@
 import time
 from tqdm import tqdm, trange
+from dask.distributed import wait
 from simulate import simulate
 
 
@@ -45,6 +46,7 @@ def run_search(client, scheduler, env_seed, iterations, log_freq):
         # workers, then gather the results of the simulations.
         futures = client.map(lambda model: simulate(model, env_seed), sols)
         results = client.gather(futures)
+        wait(futures)
 
         # Process the results.
         for obj, impact_x_pos, impact_y_vel in results:
