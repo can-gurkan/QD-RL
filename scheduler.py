@@ -7,18 +7,22 @@ from models import MLP
 
 
 @gin.configurable
-def create_scheduler(seed, n_emitters, sigma0, batch_size, archive_type=gin.REQUIRED, emitter_type=gin.REQUIRED):
+def create_scheduler(seed, n_emitters, sigma0, batch_size, archive_type=gin.REQUIRED, emitter_type=gin.REQUIRED, env_name=gin.REQUIRED):
     """Creates the Scheduler based on given configurations.
 
     Returns:
         A pyribs scheduler set up for CMA-ME (i.e. it has
         EvolutionStrategyEmitter's and a GridArchive).
 """
-    env = gym.make("LunarLander-v2")
-    action_dim = env.action_space.n
-    obs_dim = env.observation_space.shape[0]
-    initial_model = MLP(obs_dim, action_dim)
+    env = gym.make(env_name)
+    if env_name == "LunarLander-v2":
+        action_dim = env.action_space.n
+        obs_dim = env.observation_space.shape[0]
+    elif env_name == "HalfCheetah-v4":
+        action_dim = env.action_space.shape
+        obs_dim = env.observation_space.shape
 
+    initial_model = MLP(obs_dim, action_dim)
     archive = archive_type(
         solution_dim=len(initial_model.serialize())
     )

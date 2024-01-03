@@ -1,7 +1,7 @@
 import time
 from tqdm import tqdm, trange
 from dask.distributed import wait
-from simulate import simulate
+import gin
 
 
 def run_search(client, scheduler, env_seed, iterations, log_freq):
@@ -33,6 +33,13 @@ def run_search(client, scheduler, env_seed, iterations, log_freq):
             "y": [0],
         },
     }
+
+    env_name = gin.query_parameter("create_scheduler.env_name")
+    if env_name == "LunarLander-v2":
+        from simulate import simulate_LL as simulate
+    elif env_name == "HalfCheetah-v4":
+        from simulate import simulate_HC as simulate
+
 
     start_time = time.time()
     for itr in trange(1, iterations + 1):

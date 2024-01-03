@@ -1,9 +1,11 @@
 import json
 import numpy as np
 import pandas as pd
+import gin
 import matplotlib.pyplot as plt
 from ribs.visualize import grid_archive_heatmap
 from ribs.visualize import cvt_archive_heatmap
+from qd_gym import QDHalfCheetahWrapper
 
 
 def save_heatmap(archive, filename):
@@ -23,9 +25,9 @@ def save_heatmap(archive, filename):
 def save_cvt_heatmap(archive, filename):
     fig, ax = plt.subplots(figsize=(8, 6))
     cvt_archive_heatmap(archive, lw=0.1, ax=ax)
-    ax.invert_yaxis()  # Makes more sense if larger velocities are on top.
-    ax.set_ylabel("Impact y-velocity")
-    ax.set_xlabel("Impact x-position")
+    #ax.invert_yaxis()  # Makes more sense if larger velocities are on top.
+    ax.set_ylabel("BC 2")
+    ax.set_xlabel("BC 1")
     fig.savefig(filename)
     plt.figure(figsize=(12, 9))
 
@@ -85,16 +87,32 @@ def make_video(outdir, env_seed, best_n=5):
             retrieve the archive and save videos.
         env_seed (int): Seed for the environment."""
     
+    import os
+    os.environ["IMAGEIO_FFMPEG_EXE"] = "/Users/old/Documents/CCL/Embodied_Cognition/QD-RL/ffmpeg"
     import gymnasium as gym
-    from simulate import simulate
 
     df = pd.read_csv(outdir / "archive.csv")
     high_perf_sols = df.sort_values("objective", ascending=False)
     indices = high_perf_sols.iloc[0:best_n].index
 
+    env_name = gin.query_parameter("create_scheduler.env_name")
+    #env_name = "HalfCheetah-v4"
+    #env_name = "LunarLander-v2"
+
+    if env_name == "LunarLander-v2":
+        from simulate import simulate_LL as simulate
+        env = gym.make(env_name,render_mode="rgb_array")
+    elif env_name == "HalfCheetah-v4":
+        from simulate import simulate_HC as simulate
+        base_env = gym.make("HalfCheetah-v4", render_mode="rgb_array", max_episode_steps=300)
+        env = QDHalfCheetahWrapper(base_env)
+    
+    #env = gym.make(env_name,render_mode="rgb_array")
     # Use a single env so that all the videos go to the same directory.
     video_env = gym.wrappers.RecordVideo(
-        gym.make("LunarLander-v2", render_mode="rgb_array"),
+        env,
+        #QDHalfCheetahWrapper(gym.make("HalfCheetah-v4",  render_mode="rgb_array")),
+        #gym.make(env_name, render_mode="rgb_array"),
         video_folder=str(outdir / "videos"),
         # This will ensure all episodes are recorded as videos.
         episode_trigger=lambda idx: True,
@@ -104,13 +122,13 @@ def make_video(outdir, env_seed, best_n=5):
 
     for idx in indices:
         model = np.array(df.loc[idx, "solution_0":])
-        reward, impact_x_pos, impact_y_vel = simulate(model, env_seed, video_env)
+        reward, bc_1, bc_2 = simulate(model, env_seed, video_env)
 
         print(f"=== Index {idx} ===\n"
               "Model:\n"
               f"{model}\n"
               f"Reward: {reward}\n"
-              f"Impact x-pos: {impact_x_pos}\n"
-              f"Impact y-vel: {impact_y_vel}\n")
+              f"BC 1: {bc_1}\n"
+              f"BC 2: {bc_2}\n")
     
     video_env.close()  # Save video.

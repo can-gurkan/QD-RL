@@ -11,8 +11,11 @@ class QDHalfCheetahWrapper(Wrapper):
         self.desc = np.array([0.0 for _ in range(2)])
         self.desc_acc = np.array([0.0 for _ in range(2)])
 
-    def reset(self):
-        r = super().reset()
+    def reset(self,seed=None,options=None):
+        if seed != None:
+            r = super().reset(seed=seed,options=options)
+        else:
+            r = super().reset()
         self.T = 0
         self.tot_reward = 0.0
         self.desc = np.array([0.0 for _ in range(2)])
@@ -20,7 +23,7 @@ class QDHalfCheetahWrapper(Wrapper):
         return r
 
     def step(self, action):
-        state, reward, done, _, info = super().step(action)
+        state, reward, done, trunc, info = super().step(action)
         self.tot_reward += reward
         self.T += 1
         contacts = self.data.contact
@@ -40,5 +43,5 @@ class QDHalfCheetahWrapper(Wrapper):
         self.desc = self.desc_acc / self.T
         info["bc"] = self.desc
         info["x_pos"] = None
-        return state, reward, done, info
+        return state, reward, done, trunc, info
     

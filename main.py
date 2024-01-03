@@ -61,7 +61,7 @@ def experiment(workers=8,
     save_ccdf(scheduler.archive, str(outdir / "archive_ccdf.png"))
     save_cvt_heatmap(scheduler.archive, str(outdir / "heatmap.png"))
     save_metrics(outdir, metrics)
-    #make_video(outdir,env_seed)
+    make_video(outdir,env_seed)
 
 
 def manager(exp_name='exp_test'):
@@ -84,7 +84,8 @@ def main(config_file='config/hyperparams_test.gin'):
     gin.external_configurable(EvolutionStrategyEmitter)
     gin.parse_config_file(config_file)
 
-    experiment()
+    #experiment()
+    experiment(iterations=10)
     #experiment(workers=4,iterations=1000)
     #manager(exp_name='exp_test2')
 

@@ -21,6 +21,8 @@ class MLP(nn.Module):
             layers.append(nn.Linear(*shape))
             if i != len(layer_shapes) - 1:
                 layers.append(nn.ReLU())
+            else:
+                layers.append(nn.Tanh())
 
         self.model = nn.Sequential(*layers)
         self.device = T.device('cuda:0' if T.cuda.is_available() else 'cpu')
@@ -55,9 +57,14 @@ class MLP(nn.Module):
         """Returns 1D array with gradient of all parameters in the actor."""
         return np.concatenate([p.grad.cpu().detach().numpy().ravel() for p in self.parameters()])
 
-    def choose_action(self, observation):
+    def choose_action_disc(self, observation):
         state = T.from_numpy(observation.astype(np.float32)).to(self.device)
         with T.no_grad():
             actions = self.forward(state)
         action = T.argmax(actions).item()
         return action
+    
+    def choose_action_cont(self, obs):
+        """Computes action for one observation."""
+        obs = T.from_numpy(obs[None].astype(np.float32))
+        return self(obs)[0].cpu().detach().numpy()
