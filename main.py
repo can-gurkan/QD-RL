@@ -85,8 +85,8 @@ def main(config_file='config/hyperparams_test.gin'):
     gin.parse_config_file(config_file)
 
     #experiment()
-    #experiment(iterations=10)
-    experiment(workers=8,iterations=100000)
+    experiment(iterations=10)
+    #experiment(workers=8,iterations=100000)
     #manager(exp_name='exp_test2')
 
 if __name__ == "__main__":

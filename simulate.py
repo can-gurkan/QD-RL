@@ -3,13 +3,15 @@ import numpy as np
 import gin
 from models import MLP
 from qd_gym import QDHalfCheetahWrapper
+from qd_gym import CustomObsWrapperMG
+from minigrid.wrappers import ReseedWrapper
 
 
 def simulate_LL(sol, seed=None, video_env=None):
     """Simulates the lunar lander environment.
 
     Args:
-        model (np.ndarray): The array of weights for the linear policy.
+        model (np.ndarray): The array of weights for the policy.
         seed (int): The seed for the environment.
         video_env (gym.Env): If passed in, this will be used instead of creating
             a new env. This is used primarily for recording video during
@@ -78,13 +80,13 @@ def simulate_HC(sol, seed=None, video_env=None):
     """Simulates the QD Half Cheetah environment.
 
     Args:
-        model (np.ndarray): The array of weights for the linear policy.
+        model (np.ndarray): The array of weights for the policy.
         seed (int): The seed for the environment.
         video_env (gym.Env): If passed in, this will be used instead of creating
             a new env. This is used primarily for recording video during
             evaluation.
     Returns:
-        total_reward (float): The reward accrued by the lander throughout its
+        total_reward (float): The reward accrued by the walker throughout its
             trajectory.
         rear_foot_contact_time (float): The average time the rear foot is in contact with the
 ground. 
@@ -124,3 +126,53 @@ ground.
         env.close()
 
     return total_reward, rear_foot_contact_time, front_foot_contact_time
+
+
+def simulate_MG(sol, seed=None, video_env=None):
+    """Simulates the MiniGrid environments.
+
+    Args:
+        model (np.ndarray): The array of weights for the policy.
+        seed (int): The seed for the environment.
+        video_env (gym.Env): If passed in, this will be used instead of creating
+            a new env. This is used primarily for recording video during
+            evaluation.
+    Returns:
+        total_reward (float): The reward accrued by the agent throughout its
+            life.
+        x_pos (int): The final x-coordinate of the agent.
+        y_pos (int): The final y-coordinate of the agent.
+    """
+    
+    if video_env is None:
+        env = gym.make("MiniGrid-LavaCrossingS9N1-v0")
+        env = ReseedWrapper(env, seeds=seed, seed_idx=0)
+        env = CustomObsWrapperMG(env)
+    else:
+        env = video_env
+
+    action_dim = env.action_space.n
+    obs_dim = env.observation_space.shape
+    
+    gin.parse_config_file('config/nnparams.gin')
+
+    model =  MLP(obs_dim, action_dim).deserialize(sol)
+
+    total_reward = 0.0
+    x_pos = None
+    y_pos = None
+    obs, _ = env.reset(seed=seed)
+    done = False
+
+    while not done:
+        action = model.choose_action_disc(obs)
+        obs, reward, terminated, truncated, info = env.step(action)
+        done = terminated or truncated
+        total_reward += reward
+
+    x_pos, y_pos = env.agent_pos
+
+    if video_env is None:
+        env.close()
+
+    return total_reward, x_pos, y_pos

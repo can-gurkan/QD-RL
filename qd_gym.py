@@ -2,6 +2,11 @@ import numpy as np
 import gymnasium as gym
 from gymnasium import Wrapper
 
+from gymnasium import spaces
+from minigrid.wrappers import ObservationWrapper
+from functools import reduce
+import operator
+
 
 class QDHalfCheetahWrapper(Wrapper):
     def __init__(self, env):
@@ -44,4 +49,33 @@ class QDHalfCheetahWrapper(Wrapper):
         info["bc"] = self.desc
         info["x_pos"] = None
         return state, reward, done, trunc, info
-    
+
+
+class CustomObsWrapperMG(ObservationWrapper):
+    """
+    A custom observation wrapper for MiniGrid 
+    that converts the image to flat obj_IDs.
+    """
+
+    def __init__(self, env):
+        """ Args:
+            env: The environment to apply the wrapper
+        """
+        super().__init__(env)
+        self.imgSpace = env.observation_space.spaces["image"]
+        imgSize = reduce(operator.mul, self.imgSpace.shape[:-1], 1)
+
+        self.observation_space = spaces.Box(
+            low=0,
+            high=255,
+            shape=(imgSize,),
+            dtype="uint8",
+        )
+
+    def observation(self, obs):
+        img = obs["image"]
+        out = np.zeros(self.imgSpace.shape[:-1], dtype="uint8")
+        for i in range(img.shape[0]):
+            for j in range(img.shape[1]):
+                out[i, j] = img[i, j, 0]
+        return out.flatten()
