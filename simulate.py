@@ -145,8 +145,10 @@ def simulate_MG(sol, seed=None, video_env=None):
     """
     
     if video_env is None:
-        env = gym.make("MiniGrid-LavaCrossingS9N1-v0")
-        env = ReseedWrapper(env, seeds=seed, seed_idx=0)
+        # Fix this later so that it finds the env_name from config files
+        env_name = "MiniGrid-LavaCrossingS11N5-v0"
+        env = gym.make(env_name,max_episode_steps=250)
+        env = ReseedWrapper(env, seeds=[seed], seed_idx=0)
         env = CustomObsWrapperMG(env)
     else:
         env = video_env
@@ -171,6 +173,13 @@ def simulate_MG(sol, seed=None, video_env=None):
         total_reward += reward
 
     x_pos, y_pos = env.agent_pos
+
+    if True:
+        goal_x = env.width - 2
+        goal_y = env.height - 2
+        max_dist = (goal_x - 1) + (goal_y - 1)
+        dist = (max_dist - ((goal_x - x_pos) + (goal_y - y_pos))) / max_dist
+        total_reward += dist
 
     if video_env is None:
         env.close()

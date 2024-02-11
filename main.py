@@ -59,7 +59,9 @@ def experiment(workers=8,
     # Outputs.
     scheduler.archive.as_pandas().to_csv(outdir / "archive.csv")
     save_ccdf(scheduler.archive, str(outdir / "archive_ccdf.png"))
-    save_cvt_heatmap(scheduler.archive, str(outdir / "heatmap.png"))
+    # Fix this later to determine which heatmap to use based on env
+    #save_cvt_heatmap(scheduler.archive, str(outdir / "heatmap.png"))
+    save_heatmap(scheduler.archive, str(outdir / "heatmap.png"))
     save_metrics(outdir, metrics)
     make_video(outdir,env_seed)
 
@@ -81,11 +83,12 @@ def main(config_file='config/hyperparams_test.gin'):
     from models import MLP
 
     gin.external_configurable(CVTArchive)
+    gin.external_configurable(GridArchive)
     gin.external_configurable(EvolutionStrategyEmitter)
     gin.parse_config_file(config_file)
 
     #experiment()
-    experiment(iterations=10)
+    experiment(iterations=50000)
     #experiment(workers=8,iterations=100000)
     #manager(exp_name='exp_test2')
 

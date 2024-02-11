@@ -39,6 +39,8 @@ def run_search(client, scheduler, env_seed, iterations, log_freq):
         from simulate import simulate_LL as simulate
     elif env_name == "HalfCheetah-v4":
         from simulate import simulate_HC as simulate
+    elif "MiniGrid" in env_name:
+        from simulate import simulate_MG as simulate
 
 
     start_time = time.time()

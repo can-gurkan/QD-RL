@@ -5,7 +5,10 @@ import gin
 import matplotlib.pyplot as plt
 from ribs.visualize import grid_archive_heatmap
 from ribs.visualize import cvt_archive_heatmap
+
 from qd_gym import QDHalfCheetahWrapper
+from qd_gym import CustomObsWrapperMG
+from minigrid.wrappers import ReseedWrapper
 
 
 def save_heatmap(archive, filename):
@@ -16,10 +19,11 @@ def save_heatmap(archive, filename):
         filename (str): Path to an image file.
     """
     fig, ax = plt.subplots(figsize=(8, 6))
-    grid_archive_heatmap(archive, vmin=-300, vmax=300, ax=ax)
-    ax.invert_yaxis()  # Makes more sense if larger velocities are on top.
-    ax.set_ylabel("Impact y-velocity")
-    ax.set_xlabel("Impact x-position")
+    #grid_archive_heatmap(archive, vmin=-300, vmax=300, ax=ax)
+    grid_archive_heatmap(archive, ax=ax)
+    #ax.invert_yaxis()  # Makes more sense if larger velocities are on top.
+    ax.set_ylabel("BC 2")
+    ax.set_xlabel("BC 1")
     fig.savefig(filename)
 
 def save_cvt_heatmap(archive, filename):
@@ -106,6 +110,11 @@ def make_video(outdir, env_seed, best_n=5):
         from simulate import simulate_HC as simulate
         base_env = gym.make("HalfCheetah-v4", render_mode="rgb_array", max_episode_steps=300)
         env = QDHalfCheetahWrapper(base_env)
+    elif "MiniGrid" in env_name:
+        from simulate import simulate_MG as simulate
+        env = gym.make(env_name,render_mode="rgb_array")
+        env = ReseedWrapper(env, seeds=[env_seed], seed_idx=0)
+        env = CustomObsWrapperMG(env)
     
     #env = gym.make(env_name,render_mode="rgb_array")
     # Use a single env so that all the videos go to the same directory.

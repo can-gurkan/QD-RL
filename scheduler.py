@@ -11,8 +11,7 @@ def create_scheduler(seed, n_emitters, sigma0, batch_size, archive_type=gin.REQU
     """Creates the Scheduler based on given configurations.
 
     Returns:
-        A pyribs scheduler set up for CMA-ME (i.e. it has
-        EvolutionStrategyEmitter's and a GridArchive).
+        A pyribs scheduler set up for an ME-variant.
 """
     env = gym.make(env_name)
     if env_name == "LunarLander-v2":
@@ -21,6 +20,10 @@ def create_scheduler(seed, n_emitters, sigma0, batch_size, archive_type=gin.REQU
     elif env_name == "HalfCheetah-v4":
         action_dim = env.action_space.shape
         obs_dim = env.observation_space.shape
+    elif "MiniGrid" in env_name:
+        #Fix this later to be able to accept any minigrid env
+        action_dim = 7
+        obs_dim = 49
 
     initial_model = MLP(obs_dim, action_dim)
     archive = archive_type(
