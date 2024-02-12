@@ -57,7 +57,7 @@ def experiment(workers=8,
     metrics = run_search(client, scheduler, env_seed, iterations, log_freq)
 
     # Outputs.
-    scheduler.archive.as_pandas().to_csv(outdir / "archive.csv")
+    scheduler.archive.data(return_type='pandas').to_csv(outdir / "archive.csv")
     save_ccdf(scheduler.archive, str(outdir / "archive_ccdf.png"))
     # Fix this later to determine which heatmap to use based on env
     #save_cvt_heatmap(scheduler.archive, str(outdir / "heatmap.png"))
@@ -88,7 +88,7 @@ def main(config_file='config/hyperparams_test.gin'):
     gin.parse_config_file(config_file)
 
     #experiment()
-    experiment(iterations=50000)
+    experiment(iterations=1000)
     #experiment(workers=8,iterations=100000)
     #manager(exp_name='exp_test2')
 

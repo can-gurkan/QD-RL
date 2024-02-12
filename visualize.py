@@ -71,7 +71,7 @@ def save_ccdf(archive, filename):
     """
     fig, ax = plt.subplots()
     ax.hist(
-        archive.as_pandas(include_solutions=False)["objective"],
+        archive.data(return_type='pandas')["objective"],
         50,  # Number of cells.
         histtype="step",
         density=False,
@@ -92,7 +92,7 @@ def make_video(outdir, env_seed, best_n=5):
         env_seed (int): Seed for the environment."""
     
     import os
-    os.environ["IMAGEIO_FFMPEG_EXE"] = "/Users/old/Documents/CCL/Embodied_Cognition/QD-RL/ffmpeg"
+    #os.environ["IMAGEIO_FFMPEG_EXE"] = "/Users/old/Documents/CCL/Embodied_Cognition/QD-RL/ffmpeg"
     import gymnasium as gym
 
     df = pd.read_csv(outdir / "archive.csv")

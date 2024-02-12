@@ -11,7 +11,7 @@ experiment.n_emitters = 5
 experiment.batch_size = 3
 experiment.sigma0 = 1.0
 experiment.seed = None
-experiment.outdir = "output_files"
+experiment.outdir = "/projects/p20016/Can/qdrl_outputs"
 
 #create_scheduler.archive_type = @CVTArchive
 ##CVTArchive.cells = 50
