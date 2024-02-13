@@ -66,18 +66,26 @@ def experiment(workers=8,
     make_video(outdir,env_seed)
 
 
-def manager(exp_name='exp_test'):
-    archive_sizes = [1,10,100,1000]
-    for i in archive_sizes:
-        fname = 'output_files/'+exp_name+'_as_'+str(i)
-        print(fname)
-        gin.bind_parameter('CVTArchive.cells', i)
-        print(gin.query_parameter('CVTArchive.cells'))
-        experiment(outdir=fname)
-        time.sleep(10)
+def manager(exp_name='exp_test',**kwargs):
+    curr_outdir = gin.query_parameter('experiment.outdir')
+    archive_type = gin.query_parameter('create_scheduler.archive_type')
+    if 'archive_size' in kwargs:
+        archive_size = kwargs['archive_size']
+        if 'GridArchive' in str(archive_type):
+            outdir = curr_outdir + '/exps/' + exp_name + '_as_' + str(archive_size[0]**2)
+            gin.bind_parameter('GridArchive.dims', archive_size)
+            #print(gin.query_parameter('GridArchive.dims'))
+        elif 'CVTArchive' in str(archive_type):
+            outdir = curr_outdir + '/exps/' + exp_name + '_as_' + str(archive_size)
+            gin.bind_parameter('CVTArchive.cells', archive_size)
+            #print(gin.query_parameter('CVTArchive.cells'))
+        experiment(outdir=outdir)
+    else:
+        print("No experiment parameters provided.")
+    #print(outdir,archive_type)
     
 
-def main(config_file='config/hyperparams_test.gin'):
+def main(config_file='config/hyperparams_test.gin', exp_name=None, **kwargs):
     from ribs.archives import CVTArchive, GridArchive
     from ribs.emitters import EvolutionStrategyEmitter
     from models import MLP
@@ -87,8 +95,12 @@ def main(config_file='config/hyperparams_test.gin'):
     gin.external_configurable(EvolutionStrategyEmitter)
     gin.parse_config_file(config_file)
 
+    if exp_name is not None:
+        manager(exp_name=exp_name,**kwargs)
+    else:
+        experiment(iterations=10)
     #experiment()
-    experiment(iterations=1000)
+    #experiment(iterations=1000)
     #experiment(workers=8,iterations=100000)
     #manager(exp_name='exp_test2')
 

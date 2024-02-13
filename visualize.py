@@ -20,8 +20,8 @@ def save_heatmap(archive, filename):
     """
     fig, ax = plt.subplots(figsize=(8, 6))
     #grid_archive_heatmap(archive, vmin=-300, vmax=300, ax=ax)
-    grid_archive_heatmap(archive, ax=ax)
-    #ax.invert_yaxis()  # Makes more sense if larger velocities are on top.
+    grid_archive_heatmap(archive, vmin=0, vmax = 1, ax=ax)
+    ax.invert_yaxis() 
     ax.set_ylabel("BC 2")
     ax.set_xlabel("BC 1")
     fig.savefig(filename)
@@ -134,8 +134,8 @@ def make_video(outdir, env_seed, best_n=5):
         reward, bc_1, bc_2 = simulate(model, env_seed, video_env)
 
         print(f"=== Index {idx} ===\n"
-              "Model:\n"
-              f"{model}\n"
+              #"Model:\n"
+              #f"{model}\n"
               f"Reward: {reward}\n"
               f"BC 1: {bc_1}\n"
               f"BC 2: {bc_2}\n")

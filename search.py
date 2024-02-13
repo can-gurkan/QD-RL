@@ -44,7 +44,7 @@ def run_search(client, scheduler, env_seed, iterations, log_freq):
 
 
     start_time = time.time()
-    for itr in trange(1, iterations + 1):
+    for itr in range(1, iterations + 1): #trange(1, iterations + 1):
         # Request models from the scheduler.
         sols = scheduler.ask()
 
