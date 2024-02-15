@@ -1,11 +1,11 @@
 include 'config/nnparams.gin'
 
 experiment.iterations = 30
-experiment.workers = 4
+experiment.workers = 64
 experiment.env_seed = 52
 experiment.log_freq = 25
-experiment.n_emitters = 5
-experiment.batch_size = 3
+experiment.n_emitters = 12
+experiment.batch_size = 100
 experiment.sigma0 = 1.0
 experiment.seed = None
 experiment.outdir = "/projects/p20016/Can/qdrl_outputs"
