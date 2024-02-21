@@ -3,6 +3,7 @@ from dask.distributed import Client, LocalCluster
 import fire
 import gin
 import time
+from logdir import LogDir
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -21,7 +22,8 @@ def experiment(workers=8,
         batch_size=50,
         sigma0=1.0,
         seed=None,
-        outdir="output_files"):
+        outdir="output_files",
+        logdir=None):
     
     """
     Args:
@@ -54,7 +56,7 @@ def experiment(workers=8,
 
     # Specify QD algorithm and run search.
     scheduler = create_scheduler(seed, n_emitters, sigma0, batch_size)
-    metrics = run_search(client, scheduler, env_seed, iterations, log_freq)
+    metrics = run_search(client, scheduler, env_seed, iterations, log_freq, logdir)
 
     # Outputs.
     scheduler.archive.data(return_type='pandas').to_csv(outdir / "archive.csv")
@@ -63,7 +65,7 @@ def experiment(workers=8,
     #save_cvt_heatmap(scheduler.archive, str(outdir / "heatmap.png"))
     save_heatmap(scheduler.archive, str(outdir / "heatmap.png"))
     save_metrics(outdir, metrics)
-    make_video(outdir,env_seed)
+    #make_video(outdir,env_seed)
 
 
 def manager(exp_name='exp_test',**kwargs):
@@ -72,17 +74,21 @@ def manager(exp_name='exp_test',**kwargs):
     if 'archive_size' in kwargs:
         archive_size = kwargs['archive_size']
         if 'GridArchive' in str(archive_type):
-            outdir = curr_outdir + '/exps/' + exp_name + '_as_' + str(archive_size[0]**2)
+            logdir = LogDir(exp_name + '_as_' + str(archive_size[0]**2), curr_outdir + '/exps/' + exp_name)
+            outdir = logdir.logdir
             gin.bind_parameter('GridArchive.dims', archive_size)
-            #print(gin.query_parameter('GridArchive.dims'))
+            with logdir.pfile("config.gin").open("w") as file:
+                file.write(gin.config_str(max_line_length=120))
         elif 'CVTArchive' in str(archive_type):
-            outdir = curr_outdir + '/exps/' + exp_name + '_as_' + str(archive_size)
+            logdir = LogDir(exp_name + '_as_' + str(archive_size), curr_outdir + '/exps/' + exp_name)
+            outdir = logdir.logdir
             gin.bind_parameter('CVTArchive.cells', archive_size)
-            #print(gin.query_parameter('CVTArchive.cells'))
-        experiment(outdir=outdir)
+            with logdir.pfile("config.gin").open("w") as file:
+                file.write(gin.config_str(max_line_length=120))
+
+        experiment(outdir=outdir,logdir=logdir)
     else:
         print("No experiment parameters provided.")
-    #print(outdir,archive_type)
     
 
 def main(config_file='config/hyperparams_test.gin', exp_name=None, **kwargs):
