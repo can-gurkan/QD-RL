@@ -22,7 +22,7 @@ def save_heatmap(archive, filename):
     #grid_archive_heatmap(archive, vmin=-300, vmax=300, ax=ax)
     #grid_archive_heatmap(archive, vmin=0, vmax = 1, ax=ax)
     grid_archive_heatmap(archive, ax=ax)
-    ax.invert_yaxis() 
+    #ax.invert_yaxis() 
     ax.set_ylabel("BC 2")
     ax.set_xlabel("BC 1")
     fig.savefig(filename)

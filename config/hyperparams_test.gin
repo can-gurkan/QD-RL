@@ -1,8 +1,8 @@
 include 'config/nnparams.gin'
 
 #experiment.iterations = 1000
-experiment.iterations = 300
-#experiment.iterations = 10
+#experiment.iterations = 300
+experiment.iterations = 10
 experiment.workers = 4
 #experiment.workers = 1
 experiment.env_seed = 52

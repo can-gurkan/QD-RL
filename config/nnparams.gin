@@ -1,2 +1,6 @@
 #MLP.layer_shapes = (64,64)
-MLP.layer_shapes = (8,8)
+#MLP.layer_shapes = (8,8)
+#MLP.layer_shapes = (16,16)
+#MLP.layer_shapes = (128,128)
+#MLP.layer_shapes = (4,4)
+MLP.layer_shapes = (32,32)
