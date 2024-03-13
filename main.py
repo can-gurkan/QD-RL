@@ -74,16 +74,23 @@ def manager(exp_name='exp_test',**kwargs):
     if 'archive_size' in kwargs:
         archive_size = kwargs['archive_size']
         if 'GridArchive' in str(archive_type):
-            logdir = LogDir(exp_name + '_as_' + str(archive_size[0]**2), curr_outdir + '/exps/' + exp_name)
+            if 'reps' in kwargs:
+                reps = kwargs['reps']
+                logdir = LogDir(exp_name + '_as_' + str(archive_size[0]**2) + '_rep_' + str(reps), 
+                curr_outdir + '/exps/' + exp_name + '/' + exp_name + '_rep_' + str(reps))
+            else:
+                logdir = LogDir(exp_name + '_as_' + str(archive_size[0]**2), curr_outdir + '/exps/' + exp_name)
             outdir = logdir.logdir
             gin.bind_parameter('GridArchive.dims', archive_size)
-            with logdir.pfile("config.gin").open("w") as file:
+            #with logdir.pfile("config.gin").open("w") as file:
+            #    file.write(gin.config_str(max_line_length=120))
+            with logdir.pfile("config.txt").open("w") as file:
                 file.write(gin.config_str(max_line_length=120))
         elif 'CVTArchive' in str(archive_type):
             logdir = LogDir(exp_name + '_as_' + str(archive_size), curr_outdir + '/exps/' + exp_name)
             outdir = logdir.logdir
             gin.bind_parameter('CVTArchive.cells', archive_size)
-            with logdir.pfile("config.gin").open("w") as file:
+            with logdir.pfile("config.txt").open("w") as file:
                 file.write(gin.config_str(max_line_length=120))
 
         experiment(outdir=outdir,logdir=logdir)
