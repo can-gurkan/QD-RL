@@ -1,0 +1,24 @@
+include 'config/nnparams.gin'
+
+experiment.iterations = 5000
+experiment.workers = 32
+experiment.env_seed = 52
+experiment.log_freq = 100
+experiment.n_emitters = 5
+experiment.batch_size = 30
+experiment.sigma0 = 1.0
+experiment.seed = None
+experiment.outdir = "/projects/p20016/Can/qdrl_outputs"
+
+create_scheduler.archive_type = @GridArchive
+GridArchive.dims = [9,9]
+GridArchive.ranges=[(1, 9), (1, 9)]
+GridArchive.learning_rate=1.0
+#GridArchive.qd_score_offset=-600
+
+create_scheduler.emitter_type = @EvolutionStrategyEmitter
+#create_scheduler.env_name = "LunarLander-v2"
+#create_scheduler.env_name = "HalfCheetah-v4"
+create_scheduler.env_name = "MiniGrid-LavaCrossingS11N5-v0"
+EvolutionStrategyEmitter.ranker="2imp"
+
